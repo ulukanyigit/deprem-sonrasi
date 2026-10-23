@@ -8,7 +8,7 @@
 
 ## Türkçe
 
-İstanbul'da büyük bir depremden sonra yıkılan binaların enkazı hangi sokakları kapatır, kimler hastaneye araçla ve toplanma alanına yürüyerek ulaşamaz? Bu proje soruyu il genelinde, **1,08 milyon bina**, **447 bin yol parçası**, **528 hastane** ve **11.199 toplanma alanı** üzerinde Monte Carlo simülasyonuyla yanıtlıyor.
+İstanbul'da büyük bir depremden sonra yıkılan binaların enkazı hangi sokakları kapatır, kimler hastaneye araçla ve toplanma alanına yürüyerek ulaşamaz? Sonuçlar eğik 3D bir kent maketi üzerinde gösteriliyor: uzaktan mahalle sütunları, yakınlaşınca gerçek yükseklikleriyle 1,08 milyon bina. Bu proje soruyu il genelinde, **1,08 milyon bina**, **447 bin yol parçası**, **528 hastane** ve **11.199 toplanma alanı** üzerinde Monte Carlo simülasyonuyla yanıtlıyor.
 
 ### Öne çıkan bulgular (olası şiddet, 100 tur ortalaması)
 
@@ -43,7 +43,7 @@
 
 ## English
 
-After a major earthquake in Istanbul, which streets will be blocked by debris from collapsed buildings, and who will lose access to hospitals by car or to an assembly area on foot? This project answers that question city-wide with a Monte Carlo simulation over **1.08 million buildings**, **447,000 road segments**, **528 hospitals** and **11,199 assembly areas**.
+After a major earthquake in Istanbul, which streets will be blocked by debris from collapsed buildings, and who will lose access to hospitals by car or to an assembly area on foot? Results are shown on a tilted 3D city model: neighbourhood columns from afar, and all 1.08 million buildings at their real heights when you zoom in. This project answers that question city-wide with a Monte Carlo simulation over **1.08 million buildings**, **447,000 road segments**, **528 hospitals** and **11,199 assembly areas**.
 
 ### Key findings (likely severity, mean of 100 runs)
 
@@ -82,9 +82,10 @@ After a major earthquake in Istanbul, which streets will be blocked by debris fr
 |---|---|
 | `index.html` | Web app (MapLibre GL JS) |
 | `data/` | Simplified results for the web app / Web uygulaması verisi |
+| `data/bina/` | 3D building layer, one file per district, loaded on zoom / 3D bina katmanı, ilçe başına bir dosya |
 | `pipeline/il_pipeline.py` | Full city pipeline: buildings → network → debris pairs → scenarios → assembly areas → Monte Carlo → outputs |
 | `pipeline/senaryo_model.py`, `senaryo_beta.py` | Rupture selection and fragility (β) calibration against the IMM scenario |
-| `pipeline/web_export.py` | Exports `data/` |
+| `pipeline/web_export.py`, `web_bina_export.py` | Export `data/` and `data/bina/` |
 | `sonuclar/` | District summary, rupture selection and β sensitivity tables |
 
 Run with Python 3.12, GeoPandas, Shapely 2, SciPy, DuckDB, GDAL. Set `DEPREM_ROOT` and `EV_KARNESI_ROOT` to the data folders.

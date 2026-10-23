@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Yol Kapanırsa İstanbul</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="İstanbul'da büyük bir depremden sonra enkaz hangi sokakları kapatır, kim hastaneye ve toplanma alanına ulaşamaz? Üç fay senaryosu, 1,08 milyon bina.">
+<meta name="description" content="İstanbul'da büyük bir depremden sonra enkaz hangi sokakları kapatır, kim hastaneye ve toplanma alanına ulaşamaz? Üç fay senaryosu, 1,08 milyon bina, 3D kent maketi.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Overpass:wght@400;500;600;700&display=swap">
@@ -13,56 +13,52 @@
 :root{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}
 body{margin:0}
 [hidden]{display:none!important}
-/* Düzen: solda kontrol/okuma paneli, sağda tam yükseklik harita; telefonda harita üstte, panel altta.
-   Renkler Türkiye afet ve yol işaretlerinden: toplanma yeşili, hastane mavisi, yol çalışması sarısından enkaz kırmızısına. */
+/* Düzen: tam ekran eğik 3D kent maketi; solda haritanın üstünde yüzen yarı saydam panel. Telefonda harita üstte, panel altta.
+   Renkler: maket beyazı binalar, Marmara grisi deniz; afet tabelalarından toplanma yeşili ve hastane mavisi; yol çalışması sarısından enkaz kırmızısına. */
 :root{
-  --beton:#D8DAD4;      /* kara / yapı */
-  --deniz:#8EA4AA;      /* Marmara */
-  --kagit:#EEF0EB;      /* panel */
-  --murekkep:#17201E;   /* metin */
-  --soluk:#4F5A57;      /* ikincil metin */
-  --cizgi:#C2C7C0;      /* ayraçlar */
+  --maket:#ECECE7;      /* risksiz bina / maket */
+  --beton:#CFD2CB;      /* kara */
+  --deniz:#7F969D;      /* Marmara */
+  --kagit:#EEF0EB;      /* panel zemini */
+  --cam:rgba(238,240,235,.86);
+  --murekkep:#17201E;
+  --soluk:#4D5855;
+  --cizgi:#BEC3BB;
   --sari:#F2BE22; --turuncu:#E8851C; --kizil:#D2441C; --enkaz:#9E1719;
-  --toplanma:#0A7C4C;   /* toplanma alanı tabelası */
-  --hastane:#1E4C93;    /* hastane tabelası */
-  --fay:#5A1A0E;
+  --toplanma:#0A7C4C; --hastane:#1E4C93; --fay:#7A1D10;
   --f-baslik:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
   --f-govde:"Overpass","Segoe UI",system-ui,sans-serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{background:var(--kagit);color:var(--murekkep);font-family:var(--f-govde);font-size:15px;line-height:1.5}
-.uygulama{display:grid;grid-template-columns:minmax(360px,420px) 1fr;height:100%}
-.panel{overflow-y:auto;background:var(--kagit);border-right:1px solid var(--cizgi);padding-block:28px 40px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:24px;display:flex;flex-direction:column;gap:28px}
-.harita-kutu{position:relative;min-height:0;background:var(--deniz)}
+body{background:var(--deniz);color:var(--murekkep);font-family:var(--f-govde);font-size:15px;line-height:1.5;overflow:hidden}
+.sahne{position:relative;height:100%}
 #harita{position:absolute;inset:0}
-h1{font-family:var(--f-baslik);font-weight:800;font-size:clamp(46px,5.4vw,64px);line-height:.88;letter-spacing:-.01em;margin:0;text-wrap:balance}
-h2{font-family:var(--f-baslik);font-weight:700;font-size:22px;line-height:1.1;margin:0 0 10px;letter-spacing:.005em}
-.giris p{margin:12px 0 0;color:var(--soluk);max-width:38ch}
+.panel{position:absolute;z-index:3;top:16px;bottom:16px;left:max(16px,env(safe-area-inset-left,0px));width:400px;overflow-y:auto;background:var(--cam);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border:1px solid rgba(255,255,255,.55);box-shadow:0 18px 40px -18px rgba(23,32,30,.45);border-radius:6px;padding:24px 22px 28px;display:flex;flex-direction:column;gap:26px;scrollbar-width:thin}
+h1{font-family:var(--f-baslik);font-weight:800;font-size:60px;line-height:.86;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h2{font-family:var(--f-baslik);font-weight:700;font-size:21px;line-height:1.1;margin:0 0 10px}
+.giris p{margin:12px 0 0;color:var(--soluk);max-width:40ch}
 .giris p strong{color:var(--murekkep);font-weight:600}
 
-/* fay seçici */
-.fay-sema{display:block;width:100%;height:auto;margin:2px 0 10px}
+.fay-sema{display:block;width:100%;height:auto;margin:0 0 10px}
 .secenekler{display:grid;gap:6px;border:0;margin:0;padding:0}
-.secenek{display:grid;grid-template-columns:18px 1fr auto;gap:2px 10px;align-items:baseline;padding:10px 12px;border:1px solid var(--cizgi);background:transparent;cursor:pointer;border-radius:3px}
+.secenek{display:grid;grid-template-columns:18px 1fr auto;gap:2px 10px;align-items:baseline;padding:10px 12px;border:1px solid var(--cizgi);background:rgba(255,255,255,.35);cursor:pointer;border-radius:3px}
 .secenek input{margin:0;accent-color:var(--fay);align-self:center}
 .secenek .ad{font-weight:600}
 .secenek .mw{font-family:var(--f-baslik);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
 .secenek .not{grid-column:2/4;color:var(--soluk);font-size:13px;line-height:1.35}
-.secenek:has(input:checked){border-color:var(--fay);background:#E3E1D9;box-shadow:inset 3px 0 0 var(--fay)}
+.secenek:has(input:checked){border-color:var(--fay);background:rgba(255,255,255,.75);box-shadow:inset 3px 0 0 var(--fay)}
 .secenek:has(input:focus-visible){outline:2px solid var(--hastane);outline-offset:2px}
 
-.siddet{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--cizgi);border-radius:3px;overflow:hidden;margin:0;padding:0}
+.siddet{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--cizgi);border-radius:3px;overflow:hidden;margin:0;padding:0;background:rgba(255,255,255,.35)}
 .siddet label{text-align:center;padding:8px 4px;cursor:pointer;font-weight:600;font-size:14px;border-left:1px solid var(--cizgi)}
 .siddet label:first-of-type{border-left:0}
-.siddet input{position:absolute;opacity:0;pointer-events:none}
+.siddet input,.olcu input{position:absolute;opacity:0;pointer-events:none}
 .siddet label:has(input:checked){background:var(--murekkep);color:var(--kagit)}
 .siddet label:has(input:focus-visible){outline:2px solid var(--hastane);outline-offset:-3px}
 .ipucu{font-size:13px;color:var(--soluk);margin:8px 0 0}
 
-/* sonuçlar */
-.sonuc-ana{display:grid;gap:2px}
 .buyuk{font-family:var(--f-baslik);font-weight:800;font-size:58px;line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .buyuk-etiket{font-weight:600;max-width:30ch}
 .aralik{font-size:13px;color:var(--soluk);font-variant-numeric:tabular-nums}
@@ -72,16 +68,14 @@ h2{font-family:var(--f-baslik);font-weight:700;font-size:22px;line-height:1.1;ma
 .kucuk-etiket{font-size:12.5px;line-height:1.3;color:var(--soluk);margin-top:4px}
 
 .olcu{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;border:0}
-.olcu label{border:1px solid var(--cizgi);border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer;font-weight:500}
-.olcu input{position:absolute;opacity:0;pointer-events:none}
+.olcu label{border:1px solid var(--cizgi);border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer;font-weight:500;background:rgba(255,255,255,.35)}
 .olcu label:has(input:checked){background:var(--murekkep);color:var(--kagit);border-color:var(--murekkep)}
 .olcu label:has(input:focus-visible){outline:2px solid var(--hastane);outline-offset:2px}
 .lejant{margin-top:12px}
-.lejant-serit{height:10px;border-radius:2px;background:linear-gradient(90deg,var(--beton),var(--sari) 20%,var(--turuncu) 45%,var(--kizil) 70%,var(--enkaz))}
+.lejant-serit{height:10px;border-radius:2px;background:linear-gradient(90deg,var(--maket),var(--sari) 20%,var(--turuncu) 45%,var(--kizil) 70%,var(--enkaz))}
 .lejant-degerler{display:flex;justify-content:space-between;font-size:12px;color:var(--soluk);font-variant-numeric:tabular-nums;margin-top:3px}
 
-/* mahalle kartı */
-.kart{border:1px solid var(--murekkep);background:#F7F8F4;padding:16px;border-radius:3px;position:relative}
+.kart{border:1px solid var(--murekkep);background:rgba(255,255,255,.8);padding:16px;border-radius:3px;position:relative}
 .kart h3{font-family:var(--f-baslik);font-weight:800;font-size:32px;line-height:.95;margin:0 28px 2px 0}
 .kart .yer{color:var(--soluk);font-size:13.5px}
 .kapat{position:absolute;top:8px;right:8px;width:30px;height:30px;border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:var(--murekkep);border-radius:3px}
@@ -91,7 +85,7 @@ h2{font-family:var(--f-baslik);font-weight:700;font-size:22px;line-height:1.1;ma
 .kart dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
 .kiyas{margin-top:14px;padding-top:12px;border-top:1px solid var(--cizgi)}
 .kiyas-baslik{font-size:13px;color:var(--soluk);margin-bottom:6px}
-.kiyas-satir{display:grid;grid-template-columns:110px 1fr 46px;align-items:center;gap:8px;font-size:13px;margin-top:4px}
+.kiyas-satir{display:grid;grid-template-columns:104px 1fr 46px;align-items:center;gap:8px;font-size:13px;margin-top:4px}
 .kiyas-cubuk{height:8px;background:var(--beton);border-radius:1px;position:relative;overflow:hidden}
 .kiyas-cubuk i{position:absolute;inset:0 auto 0 0;background:var(--kizil)}
 .kiyas-satir b{text-align:right;font-variant-numeric:tabular-nums}
@@ -107,37 +101,44 @@ h2{font-family:var(--f-baslik);font-weight:700;font-size:22px;line-height:1.1;ma
 .lil{font-size:12.5px;color:var(--soluk);grid-column:1}
 .ldeg{grid-row:1/3;grid-column:2;align-self:center;font-family:var(--f-baslik);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
 
-details{border-top:1px solid var(--cizgi);padding-top:14px}
-summary{font-family:var(--f-baslik);font-weight:700;font-size:20px;cursor:pointer}
+details.yontem{border-top:1px solid var(--cizgi);padding-top:14px}
+details.yontem summary{font-family:var(--f-baslik);font-weight:700;font-size:20px;cursor:pointer}
 summary:focus-visible{outline:2px solid var(--hastane);outline-offset:2px}
-details ol{padding-left:20px;margin:12px 0}
-details li{margin-bottom:8px;color:var(--soluk)}
-details li b{color:var(--murekkep);font-weight:600}
-details h4{font-size:14px;margin:14px 0 4px}
-details p,details ul{color:var(--soluk);margin:4px 0;font-size:14px}
-details ul{padding-left:18px}
+details.yontem ol{padding-left:20px;margin:12px 0}
+details.yontem li{margin-bottom:8px;color:var(--soluk)}
+details.yontem li b{color:var(--murekkep);font-weight:600}
+details.yontem h4{font-size:14px;margin:14px 0 4px}
+details.yontem p,details.yontem ul{color:var(--soluk);margin:4px 0;font-size:14px}
+details.yontem ul{padding-left:18px}
 a{color:var(--hastane)}
-.imza{font-size:13px;color:var(--soluk);border-top:1px solid var(--cizgi);padding-top:14px}
+.imza{font-size:13px;color:var(--soluk);border-top:1px solid var(--cizgi);padding-top:14px;margin:0}
 .imza strong{color:var(--murekkep)}
 
-/* harita üstü */
-.harita-lejant{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:12px;background:rgba(238,240,235,.94);border:1px solid var(--cizgi);border-radius:3px;padding:10px 12px;font-size:12.5px;display:grid;gap:5px;max-width:260px}
-.harita-lejant .s{display:flex;align-items:center;gap:8px}
-.harita-lejant summary{font-family:var(--f-govde);font-size:12.5px;font-weight:600;cursor:pointer;list-style-position:inside}
-.harita-lejant[open] summary{margin-bottom:2px}.yol-ornek{width:26px;height:4px;border-radius:2px;flex:none}
-.nokta{width:11px;height:11px;border-radius:50%;flex:none;border:1.5px solid #fff}
-.kare-h{width:13px;height:13px;flex:none;background:var(--hastane);color:#fff;font:700 9px/13px var(--f-govde);text-align:center;border-radius:2px}
-.fay-ornek{width:26px;height:0;border-top:3px dashed var(--fay);flex:none}
-.zum{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:12px;display:grid;border:1px solid var(--cizgi);border-radius:3px;overflow:hidden;background:var(--kagit)}
-.zum button{width:36px;height:36px;border:0;background:var(--kagit);font-size:20px;cursor:pointer;color:var(--murekkep)}
-.zum button+button{border-top:1px solid var(--cizgi)}
-.zum button:focus-visible{outline:2px solid var(--hastane);outline-offset:-3px}
-.durum{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--murekkep);color:var(--kagit);padding:6px 12px;border-radius:3px;font-size:13px}
-.ipucu-kutu{position:absolute;pointer-events:none;background:var(--murekkep);color:var(--kagit);padding:6px 9px;border-radius:3px;font-size:13px;line-height:1.3;max-width:240px;transform:translate(12px,12px)}
-.ipucu-kutu b{display:block}
-.kaynak-notu{position:absolute;right:max(8px,env(safe-area-inset-right,0px));bottom:6px;font-size:11px;color:#26302E;background:rgba(238,240,235,.8);padding:1px 6px;border-radius:2px}
+/* harita kontrolleri */
+.kontrol{position:absolute;z-index:3;right:max(16px,env(safe-area-inset-right,0px));top:16px;display:grid;gap:8px}
+.kontrol-grup{display:grid;background:var(--cam);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.55);border-radius:6px;overflow:hidden;box-shadow:0 10px 24px -14px rgba(23,32,30,.5)}
+.kontrol button{width:40px;height:40px;border:0;background:transparent;font:600 15px/1 var(--f-govde);cursor:pointer;color:var(--murekkep)}
+.kontrol button+button{border-top:1px solid var(--cizgi)}
+.kontrol button:hover{background:rgba(255,255,255,.6)}
+.kontrol button:focus-visible{outline:2px solid var(--hastane);outline-offset:-3px}
+.kontrol button[aria-pressed="true"]{background:var(--murekkep);color:var(--kagit)}
+.pusula{display:block;width:18px;height:18px;margin:auto;transition:transform .2s}
 
-/* MapLibre çekirdek stilleri (CDN stil dosyası yüklenemediği için) */
+.harita-lejant{position:absolute;z-index:3;right:max(16px,env(safe-area-inset-right,0px));bottom:28px;background:var(--cam);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.55);border-radius:6px;padding:10px 12px;font-size:12.5px;display:grid;gap:5px;max-width:250px;box-shadow:0 10px 24px -14px rgba(23,32,30,.5)}
+.harita-lejant summary{font-weight:600;cursor:pointer}
+.harita-lejant[open] summary{margin-bottom:4px}
+.harita-lejant .s{display:flex;align-items:center;gap:8px}
+.yol-ornek{width:26px;height:4px;border-radius:2px;flex:none}
+.nokta{width:11px;height:11px;border-radius:50%;flex:none;border:1.5px solid #fff}
+.kule{width:10px;height:15px;flex:none;background:var(--hastane);border-radius:1px}
+.duvar{width:26px;height:9px;flex:none;background:var(--fay);clip-path:polygon(0 30%,100% 0,100% 100%,0 100%)}
+.ust-bilgi{position:absolute;z-index:3;left:50%;top:16px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
+.rozet{background:var(--murekkep);color:var(--kagit);padding:6px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
+.rozet.acik{background:var(--cam);color:var(--murekkep);border:1px solid rgba(255,255,255,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ipucu-kutu{position:absolute;z-index:4;pointer-events:none;background:var(--murekkep);color:var(--kagit);padding:6px 9px;border-radius:3px;font-size:13px;line-height:1.35;max-width:250px;transform:translate(14px,14px)}
+.ipucu-kutu b{display:block}
+.kaynak-notu{position:absolute;z-index:3;right:max(16px,env(safe-area-inset-right,0px));bottom:6px;font-size:11px;color:#1F2826;text-shadow:0 0 4px rgba(255,255,255,.7)}
+
 .maplibregl-map{overflow:hidden;position:relative;-webkit-tap-highlight-color:transparent}
 .maplibregl-canvas{position:absolute;left:0;top:0}
 .maplibregl-canvas-container.maplibregl-interactive{cursor:grab}
@@ -145,14 +146,19 @@ a{color:var(--hastane)}
 .maplibregl-canvas-container.maplibregl-interactive.isaret{cursor:pointer}
 .maplibregl-ctrl-bottom-right,.maplibregl-ctrl-bottom-left,.maplibregl-ctrl-top-left,.maplibregl-ctrl-top-right{display:none}
 
-@media (max-width:820px){
+@media (max-width:860px){
+  body{overflow:auto}
   html,body{height:auto}
-  .uygulama{display:flex;flex-direction:column;height:auto}
-  .harita-kutu{order:-1;height:62svh;min-height:380px}
-  .panel{overflow:visible;border-right:0;padding-right:max(16px,env(safe-area-inset-right,0px));padding-left:max(16px,env(safe-area-inset-left,0px))}
-  .harita-lejant{max-width:200px;font-size:11.5px;padding:8px 10px}
+  .sahne{height:auto;display:flex;flex-direction:column}
+  .harita-kutu{position:relative;height:68svh;min-height:420px}
+  .panel{position:static;width:auto;max-height:none;overflow:visible;border-radius:0;border:0;box-shadow:none;background:var(--kagit);-webkit-backdrop-filter:none;backdrop-filter:none;padding-block:24px 36px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .kontrol{top:12px;right:max(12px,env(safe-area-inset-right,0px))}
+  .harita-lejant{right:auto;left:max(12px,env(safe-area-inset-left,0px));bottom:22px;max-width:210px;font-size:11.5px}
+  .ust-bilgi{top:auto;bottom:22px;left:auto;right:64px;transform:none}
+  h1{font-size:52px}
   .buyuk{font-size:50px}
 }
+@media (min-width:861px){.harita-kutu{position:absolute;inset:0}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .fay-iz-secili{animation:kirilma 1.1s ease-out 1}
 @keyframes kirilma{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
@@ -161,7 +167,33 @@ a{color:var(--hastane)}
 <body>
 
 
-<div class="uygulama">
+<div class="sahne">
+  <div class="harita-kutu" aria-label="3D harita">
+    <div id="harita"></div>
+    <div class="kontrol">
+      <div class="kontrol-grup"><button id="z-art" aria-label="Yakınlaştır">+</button><button id="z-azal" aria-label="Uzaklaştır">−</button></div>
+      <div class="kontrol-grup">
+        <button id="c-sol" aria-label="Sola döndür">⟲</button>
+        <button id="c-kuzey" aria-label="Kuzeyi yukarı al"><svg class="pusula" id="pusula" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2 L14 11 L10 9.5 L6 11 Z" fill="#9E1719"/><path d="M10 18 L6 11 L10 12.5 L14 11 Z" fill="#4D5855"/></svg></button>
+        <button id="c-sag" aria-label="Sağa döndür">⟳</button>
+      </div>
+      <div class="kontrol-grup"><button id="c-3d" aria-pressed="true" aria-label="3D görünümü aç veya kapat">3D</button></div>
+    </div>
+    <div class="ust-bilgi"><span class="rozet" id="durum">Veri yükleniyor</span><span class="rozet acik" id="ipucu-yakin" hidden>Binaları 3D görmek için yakınlaşın</span></div>
+    <details class="harita-lejant" id="harita-lejant" open>
+      <summary>Harita işaretleri</summary>
+      <div class="s"><span class="yol-ornek" style="background:var(--sari)"></span>Yolun kapanma olasılığı %10–30</div>
+      <div class="s"><span class="yol-ornek" style="background:var(--kizil)"></span>%30–60</div>
+      <div class="s"><span class="yol-ornek" style="background:var(--enkaz);box-shadow:0 0 6px var(--kizil)"></span>%60'tan fazla</div>
+      <div class="s"><span class="kule"></span>Hastane</div>
+      <div class="s"><span class="nokta" style="background:var(--toplanma)"></span>Toplanma alanı, kapasite yetiyor</div>
+      <div class="s"><span class="nokta" style="background:var(--turuncu)"></span>Toplanma alanı taşıyor</div>
+      <div class="s"><span class="duvar"></span>Kırılan fay segmenti</div>
+    </details>
+    <div class="ipucu-kutu" id="ipucu" hidden></div>
+    <div class="kaynak-notu">© OpenStreetMap katkıcıları, Overture, İBB</div>
+  </div>
+
   <aside class="panel" aria-label="Senaryo ve sonuçlar">
     <header class="giris">
       <h1>Yol kapanırsa</h1>
@@ -172,7 +204,7 @@ a{color:var(--hastane)}
       <h2 id="b-fay">Fay nerede kırılırsa</h2>
       <svg class="fay-sema" id="fay-sema" viewBox="0 0 360 92" role="img" aria-label="Ana Marmara Fayı ve seçili kırılma segmenti"></svg>
       <fieldset class="secenekler" id="kaynak">
-        <legend class="sr" hidden>Kırılma senaryosu</legend>
+        <legend hidden>Kırılma senaryosu</legend>
         <label class="secenek"><input type="radio" name="kaynak" id="k-ibb" value="ibb" checked><span class="ad">Orta Marmara</span><span class="mw">Mw 7,5</span><span class="not">İBB'nin resmi senaryosu. Kumburgaz segmenti, kırılma Adalar'ın batısında biter.</span></label>
         <label class="secenek"><input type="radio" name="kaynak" id="k-dogu" value="dogu"><span class="ad">Adalar segmenti</span><span class="mw">Mw 7,1</span><span class="not">Kilitli olduğu bilinen doğu segmenti. Anadolu yakasının güney kıyısına yakın.</span></label>
         <label class="secenek"><input type="radio" name="kaynak" id="k-birlesik" value="birlesik"><span class="ad">Kumburgaz ve Adalar birlikte</span><span class="mw">Mw 7,4</span><span class="not">İki segmentin aynı anda kırılması. İl geneli en ağır senaryo.</span></label>
@@ -190,13 +222,10 @@ a{color:var(--hastane)}
       <p class="ipucu">Mahalle hasar oranlarının yarısı, kendisi ve 1,5 katı.</p>
     </section>
 
-    <section aria-labelledby="b-sonuc" aria-live="polite">
-      <h2 id="b-sonuc" hidden>Sonuçlar</h2>
-      <div class="sonuc-ana">
-        <div class="buyuk" id="r-hastane">408.212</div>
-        <div class="buyuk-etiket">kişinin hastaneyle araç bağlantısı kopuyor</div>
-        <div class="aralik" id="r-aralik">100 turun %90'ı: 379.767 – 437.602 kişi</div>
-      </div>
+    <section aria-live="polite">
+      <div class="buyuk" id="r-hastane">408.212</div>
+      <div class="buyuk-etiket">kişinin hastaneyle araç bağlantısı kopuyor</div>
+      <div class="aralik" id="r-aralik">100 turun %90'ı: 379.767 – 437.602 kişi</div>
       <div class="sonuc-alt">
         <div><div class="orta" id="r-km">944 km</div><div class="kucuk-etiket">yol enkazla kapanıyor</div></div>
         <div><div class="orta" id="r-toplanma">163.231</div><div class="kucuk-etiket">kişi toplanma alanına yürüyemiyor</div></div>
@@ -207,7 +236,7 @@ a{color:var(--hastane)}
     <section aria-labelledby="b-harita">
       <h2 id="b-harita">Haritada göster</h2>
       <fieldset class="olcu" id="olcu">
-        <legend hidden>Mahalle haritası ölçüsü</legend>
+        <legend hidden>Harita ölçüsü</legend>
         <label><input type="radio" name="olcu" id="o-h" value="h" checked>Hastaneye ulaşamayan</label>
         <label><input type="radio" name="olcu" id="o-t" value="t">Toplanma alanına yürüyemeyen</label>
         <label><input type="radio" name="olcu" id="o-d" value="d">Ağır hasarlı bina</label>
@@ -215,8 +244,8 @@ a{color:var(--hastane)}
       </fieldset>
       <div class="lejant">
         <div class="lejant-serit"></div>
-        <div class="lejant-degerler" id="lejant-degerler"><span>%0</span><span>%2</span><span>%10</span><span>%25</span><span>%50+</span></div>
-        <p class="ipucu" id="olcu-aciklama">Mahalle nüfusunun yüzde kaçının hastaneye giden bütün araç yolları kapanıyor.</p>
+        <div class="lejant-degerler" id="lejant-degerler"></div>
+        <p class="ipucu" id="olcu-aciklama"></p>
       </div>
     </section>
 
@@ -225,10 +254,10 @@ a{color:var(--hastane)}
     <section aria-labelledby="b-liste">
       <h2 id="b-liste">En çok etkilenen mahalleler</h2>
       <ol class="liste" id="liste"></ol>
-      <p class="ipucu">2.000'den fazla nüfuslu mahalleler. Tıklayınca haritada açılır.</p>
+      <p class="ipucu">2.000'den fazla nüfuslu mahalleler. Tıklayınca kamera oraya gider.</p>
     </section>
 
-    <details>
+    <details class="yontem">
       <summary>Model nasıl çalışıyor</summary>
       <ol>
         <li><b>Binalar.</b> OSM bina tabanları, OSM'de olmayanlar Overture (Microsoft) verisiyle tamamlandı. Eksik kat sayıları İBB'nin mahalle bazlı kat dağılımına göre atandı.</li>
@@ -237,9 +266,11 @@ a{color:var(--hastane)}
         <li><b>Erişim.</b> Her turda kapalı yollar ağdan çıkarılır ve 528 hastaneye ve 11.199 toplanma alanına en kısa yol hesaplanır. Hastanelerin hasar görmediği varsayıldı.</li>
         <li><b>Toplanma alanları.</b> Resmi liste açık veri olarak yok. Parklar, meydanlar, okul bahçeleri ve spor alanlarından, çevredeki binaların yüksekliği kadar güvenlik payı bırakılarak türetildi. Kişi başı 1,5 m².</li>
       </ol>
+      <h4>Haritayı okumak</h4>
+      <p>Uzaktan mahalle sütunlarının yüksekliği ve rengi seçili ölçüyü gösterir. Yakınlaştıkça binalar gerçek yükseklikleriyle gelir ve her bina kendi değeriyle boyanır.</p>
       <h4>Sınırlamalar</h4>
       <ul>
-        <li>Bu bir tahmin modelidir, tek tek binalar için hasar öngörüsü değildir.</li>
+        <li>Bu bir senaryo modelidir, tek tek binalar için hasar öngörüsü değildir.</li>
         <li>Fay izi yaklaşıktır (±5 km). İBB senaryosunu en iyi açıklayan kırılma Orta Marmara olarak veriden bulundu (R² 0,67).</li>
         <li>Nüfus binalara kat alanıyla dağıtıldı; gece nüfusunu varsayar.</li>
         <li>Adalar'da ulaşım vapura bağlıdır; oradaki sonuçlar yalnızca gösterge niteliğindedir.</li>
@@ -250,85 +281,69 @@ a{color:var(--hastane)}
         <li><a href="https://data.ibb.gov.tr/dataset/istanbul-saglik-kurum-ve-kuruluslari-verisi" target="_blank" rel="noopener">İBB Açık Veri, sağlık kurumları</a></li>
         <li><a href="https://web.itu.edu.tr/~cakirz/papers/ergintav_etal_grl_14.pdf" target="_blank" rel="noopener">Ergintav ve diğ. 2014, Adalar segmenti</a></li>
         <li>OpenStreetMap katkıcıları, Overture Maps Foundation, TÜİK ADNKS 2025</li>
+        <li><a href="https://github.com/ulukanyigit/deprem-sonrasi" target="_blank" rel="noopener">Kaynak kod ve yöntem (GitHub)</a></li>
       </ul>
     </details>
 
     <p class="imza"><strong>Hamza Yiğit Ulukan</strong>, harita mühendisi. <a href="https://www.linkedin.com/in/yulukan" target="_blank" rel="noopener">LinkedIn</a></p>
   </aside>
-
-  <main class="harita-kutu" aria-label="Harita">
-    <div id="harita"></div>
-    <div class="zum"><button id="z-art" aria-label="Yakınlaştır">+</button><button id="z-azal" aria-label="Uzaklaştır">−</button></div>
-    <details class="harita-lejant" id="harita-lejant" open>
-      <summary>Harita işaretleri</summary>
-      <div class="s"><span class="yol-ornek" style="background:var(--sari)"></span>Yolun kapanma olasılığı %10–30</div>
-      <div class="s"><span class="yol-ornek" style="background:var(--kizil)"></span>%30–60</div>
-      <div class="s"><span class="yol-ornek" style="background:var(--enkaz)"></span>%60'tan fazla</div>
-      <div class="s"><span class="kare-h">H</span>Hastane</div>
-      <div class="s"><span class="nokta" style="background:var(--toplanma)"></span>Toplanma alanı, kapasite yetiyor</div>
-      <div class="s"><span class="nokta" style="background:var(--turuncu)"></span>Toplanma alanı taşıyor</div>
-      <div class="s"><span class="fay-ornek"></span>Kırılan fay segmenti</div>
-    </details>
-    <div class="durum" id="durum">Yollar yükleniyor</div>
-    <div class="ipucu-kutu" id="ipucu" hidden></div>
-    <div class="kaynak-notu">© OpenStreetMap katkıcıları, Overture, İBB</div>
-  </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 (() => {
-const KAYNAK = ["ibb","dogu","birlesik"];
-const CARPAN = [0.5,1,1.5];
+const KAYNAK = ["ibb","dogu","birlesik"], CARPAN = [0.5,1,1.5];
 const FAY = [[27.55,40.82],[27.95,40.81],[28.25,40.84],[28.55,40.86],[28.85,40.87],[29.05,40.83],[29.25,40.77],[29.40,40.72]];
 const KIRILMA = {ibb:[27.95,28.85], dogu:[28.85,29.40], birlesik:[28.25,29.40]};
-const YER = [["Silivri",28.25,41.07,"middle",-6],["Büyükçekmece",28.59,41.02,"middle",-6],["Yeşilköy",28.82,40.96,"end",-6],["Kadıköy",29.03,40.99,"start",-6],["Adalar",29.09,40.87,"middle",14],["Tuzla",29.30,40.82,"middle",14]];
-const css = getComputedStyle(document.documentElement);
-const R = n => css.getPropertyValue(n).trim();
-const C = {beton:R("--beton"),deniz:R("--deniz"),sari:R("--sari"),turuncu:R("--turuncu"),kizil:R("--kizil"),enkaz:R("--enkaz"),toplanma:R("--toplanma"),hastane:R("--hastane"),fay:R("--fay"),murekkep:R("--murekkep"),cizgi:R("--cizgi")};
+const KAMERA = {ibb:{center:[28.86,40.99],bearing:-24}, dogu:{center:[29.16,40.93],bearing:18}, birlesik:{center:[29.0,40.96],bearing:-8}};
+const YER = [["Silivri",28.25,41.07,"middle",-6],["Yeşilköy",28.82,40.96,"end",-6],["Kadıköy",29.03,40.99,"start",-6],["Adalar",29.09,40.87,"middle",14],["Tuzla",29.30,40.82,"middle",14]];
+const css = getComputedStyle(document.documentElement), R = n => css.getPropertyValue(n).trim();
+const C = {maket:R("--maket"),beton:R("--beton"),deniz:R("--deniz"),sari:R("--sari"),turuncu:R("--turuncu"),kizil:R("--kizil"),enkaz:R("--enkaz"),toplanma:R("--toplanma"),hastane:R("--hastane"),fay:R("--fay"),murekkep:R("--murekkep"),cizgi:R("--cizgi"),soluk:R("--soluk")};
+const HAREKET = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const TELEFON = () => window.matchMedia("(max-width:860px)").matches;
 const fmt = n => Math.round(n).toLocaleString("tr-TR");
-const yuzde = v => "%" + (v>=10 ? Math.round(v) : v.toFixed(1).replace(".",","));
-const st = {k:"ibb", s:1, o:"h", secili:null};
+const yuzde = v => "%" + (v>=10 ? Math.round(v) : (+v).toFixed(1).replace(".",","));
+const st = {k:"ibb", s:1, o:"h", secili:null, d3:true};
 const idx = () => KAYNAK.indexOf(st.k)*3 + st.s;
 const OLCU = {
-  h:{ad:"Hastaneye ulaşamayan", ac:"Mahalle nüfusunun yüzde kaçının hastaneye giden bütün araç yolları kapanıyor.", esik:[0,2,10,25,50]},
-  t:{ad:"Toplanma alanına yürüyemeyen", ac:"Mahalle nüfusunun yüzde kaçı hiçbir toplanma alanına yürüyerek ulaşamıyor.", esik:[0,1,4,10,25]},
-  d:{ad:"Ağır hasarlı bina", ac:"Ağır ve çok ağır hasar görmesi beklenen binaların oranı.", esik:[0,2,6,15,35]},
-  o:{ad:"Toplanma alanı taşan", ac:"Nüfusun yüzde kaçının en yakın toplanma alanı, oraya gelen kişileri almıyor.", esik:[0,25,50,75,100]},
+  h:{ad:"Hastaneye ulaşamayan", ac:"Hastaneye giden bütün araç yollarının enkazla kapanma olasılığı. Sütunlar mahalle nüfusunun yüzdesini, binalar o binanın değerini gösterir.", esik:[0,2,10,25,50]},
+  t:{ad:"Toplanma alanına yürüyemeyen", ac:"Hiçbir toplanma alanına yürüyerek ulaşamama olasılığı.", esik:[0,1,4,10,25]},
+  d:{ad:"Ağır hasarlı bina", ac:"Ağır ve çok ağır hasar görme olasılığı. Bina değeri mahalle oranından gelir.", esik:[0,2,6,15,35]},
+  o:{ad:"Toplanma alanı taşan", ac:"En yakın toplanma alanının gelen kişileri alamama durumu.", esik:[0,25,50,75,100]},
 };
 
-/* ---------- fay şeması (panel) ---------- */
+/* ---------- panel: fay şeması ---------- */
 function fayCiz(){
   const svg = document.getElementById("fay-sema");
   const X = lon => 14 + (lon-27.5)/(29.5-27.5)*332, Y = lat => 70 - (lat-40.70)/(41.10-40.70)*62;
   const yol = pts => pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
-  const [a,b] = KIRILMA[st.k];
-  const seg = FAY.filter(p => p[0]>=a-1e-9 && p[0]<=b+1e-9);
+  const [a,b] = KIRILMA[st.k], seg = FAY.filter(p => p[0]>=a-1e-9 && p[0]<=b+1e-9);
   let h = `<path d="${yol(FAY)}" fill="none" stroke="${C.cizgi}" stroke-width="2" stroke-dasharray="4 4"/>`;
-  h += `<path class="fay-iz-secili" d="${yol(seg)}" fill="none" stroke="${C.fay}" stroke-width="5" stroke-linecap="round" stroke-dasharray="300" />`;
+  h += `<path class="fay-iz-secili" d="${yol(seg)}" fill="none" stroke="${C.fay}" stroke-width="5" stroke-linecap="round" stroke-dasharray="300"/>`;
   for (const [ad,lo,la,an,dy] of YER){
     const dx = an==="end" ? -4 : an==="start" ? 4 : 0;
     h += `<circle cx="${X(lo)}" cy="${Y(la)}" r="2.6" fill="${C.murekkep}"/><text x="${X(lo)+dx}" y="${Y(la)+dy}" font-size="10.5" font-family="Overpass,system-ui,sans-serif" text-anchor="${an}" fill="${C.murekkep}">${ad}</text>`;
   }
-  h += `<text x="14" y="88" font-size="10.5" font-family="Overpass,system-ui,sans-serif" fill="#4F5A57">Ana Marmara Fayı, yaklaşık iz</text>`;
+  h += `<text x="14" y="88" font-size="10.5" font-family="Overpass,system-ui,sans-serif" fill="${C.soluk}">Ana Marmara Fayı, yaklaşık iz</text>`;
   svg.innerHTML = h;
 }
 
 /* ---------- veri ---------- */
-let M = null, Y = null, T = null, H = null, OZ = null, harita = null;
-const al = u => fetch(u).then(r => { if(!r.ok) throw new Error(u+" yüklenemedi ("+r.status+")"); return r.json(); });
+let M=null, T=null, H=null, OZ=null, BI=null, harita=null;
+const al = u => fetch(u).then(r => { if(!r.ok) throw new Error(u.split("/").pop()+" yüklenemedi"); return r.json(); });
+const durum = t => { const e = document.getElementById("durum"); e.textContent = t || ""; e.hidden = !t; };
 
 function mahalleDuzle(fc){
   fc.features.forEach((f,i) => {
     const p = f.properties; f.id = i;
-    p.h.forEach((v,j)=>p["h"+j]=v); p.t.forEach((v,j)=>p["t"+j]=v); p.o.forEach((v,j)=>p["o"+j]=v);
+    for(let j=0;j<9;j++){ p["h"+j]=p.h[j]; p["t"+j]=p.t[j]; p["o"+j]=p.o[j]; }
     KAYNAK.forEach((k,ki) => CARPAN.forEach((c,ci) => p["d"+(ki*3+ci)] = Math.min(100, p.d[k]*c)));
+    delete p.h; delete p.t; delete p.o;
   });
   return fc;
 }
-function deger(p, o, i){ return p[o+i]; }
 
-/* ---------- sonuç paneli ---------- */
+/* ---------- panel içeriği ---------- */
 function ozetYaz(){
   if(!OZ) return;
   const s = OZ.s[OZ.sc[idx()]];
@@ -341,15 +356,14 @@ function ozetYaz(){
 function listeYaz(){
   if(!M) return;
   const i = idx(), o = st.o;
-  const top = M.features.filter(f=>f.properties.p>=2000).map(f=>[f, deger(f.properties,o,i)]).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const ol = document.getElementById("liste");
-  ol.innerHTML = top.map(([f,v]) => `<li><button data-id="${f.id}"><span class="lad">${f.properties.n}</span><span class="lil">${f.properties.i}, ${fmt(f.properties.p)} kişi</span><span class="ldeg">${yuzde(v)}</span></button></li>`).join("");
+  const top = M.features.filter(f=>f.properties.p>=2000).map(f=>[f, f.properties[o+i]]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById("liste").innerHTML = top.map(([f,v]) => `<li><button data-id="${f.id}"><span class="lad">${f.properties.n}</span><span class="lil">${f.properties.i}, ${fmt(f.properties.p)} kişi</span><span class="ldeg">${yuzde(v)}</span></button></li>`).join("");
 }
 function kartYaz(){
   const k = document.getElementById("kart");
   if(st.secili==null || !M){ k.hidden = true; return; }
   const p = M.features[st.secili].properties, i = idx();
-  const satir = (ad, ki) => { const j = ki*3+st.s, v = p["h"+j]; return `<div class="kiyas-satir${KAYNAK[ki]===st.k?" secili":""}"><span>${ad}</span><div class="kiyas-cubuk"><i style="width:${Math.min(100,v)}%"></i></div><b>${yuzde(v)}</b></div>`; };
+  const satir = (ad, ki) => { const v = p["h"+(ki*3+st.s)]; return `<div class="kiyas-satir${KAYNAK[ki]===st.k?" secili":""}"><span>${ad}</span><div class="kiyas-cubuk"><i style="width:${Math.min(100,v)}%"></i></div><b>${yuzde(v)}</b></div>`; };
   k.innerHTML = `<button class="kapat" id="kart-kapat" aria-label="Mahalle kartını kapat">×</button>
     <h3>${p.n}</h3><div class="yer">${p.i}, ${fmt(p.p)} kişi, ${fmt(p.b)} bina</div>
     <dl>
@@ -372,25 +386,51 @@ function lejantYaz(){
 }
 
 /* ---------- harita ---------- */
-function renkIfade(key, e){
-  return ["interpolate",["linear"],["coalesce",["get",key],0], e[0],C.beton, e[1],C.sari, e[2],C.turuncu, e[3],C.kizil, e[4],C.enkaz];
-}
+const renk = (expr, e) => ["interpolate",["linear"],expr, e[0],C.maket, e[1],C.sari, e[2],C.turuncu, e[3],C.kizil, e[4],C.enkaz];
+const binaDeger = () => st.o==="o" ? ["*",100,["%",["floor",["/",["get","o"],2**idx()]],2]] : ["coalesce",["get",st.o+idx()],0];
+
 function haritaGuncelle(){
   if(!harita) return;
-  const i = idx();
-  if(harita.getLayer("mahalle")) harita.setPaintProperty("mahalle","fill-color", renkIfade(st.o+i, OLCU[st.o].esik));
+  const i = idx(), e = OLCU[st.o].esik;
+  if(harita.getLayer("mahalle-3d")){
+    const v = ["coalesce",["get",st.o+i],0];
+    harita.setPaintProperty("mahalle-3d","fill-extrusion-color", renk(v, e));
+    harita.setPaintProperty("mahalle-3d","fill-extrusion-height", ["*", ["min", ["/", v, e[4]], 1.2], 2600]);
+  }
+  for(const key of binaKatmanlari()) harita.setPaintProperty(key,"fill-extrusion-color", renk(binaDeger(), e));
   if(harita.getLayer("yol")){
     harita.setFilter("yol", [">=",["get","v"+i],10]);
     harita.setPaintProperty("yol","line-color", ["step",["get","v"+i], C.sari, 30, C.kizil, 60, C.enkaz]);
+    harita.setFilter("yol-isilti", [">=",["get","v"+i],60]);
   }
   if(harita.getLayer("toplanma")) harita.setPaintProperty("toplanma","circle-color", ["case", [">", ["get","l"+i], ["get","k"]], C.turuncu, C.toplanma]);
-  if(harita.getSource("kirilma")) harita.getSource("kirilma").setData(kirilmaGJ());
 }
-function kirilmaGJ(){
-  const [a,b] = KIRILMA[st.k];
+function fayGJ(){
+  const [a,b] = KIRILMA[st.k], seg = FAY.filter(p=>p[0]>=a-1e-9&&p[0]<=b+1e-9);
+  const sol = [], sag = [];
+  for(let j=0;j<seg.length;j++){
+    const p = seg[j], q = seg[Math.min(j+1,seg.length-1)], r = seg[Math.max(j-1,0)];
+    const dx = q[0]-r[0], dy = q[1]-r[1], L = Math.hypot(dx,dy)||1, w = 0.0035;
+    sol.push([p[0]-dy/L*w, p[1]+dx/L*w]); sag.push([p[0]+dy/L*w, p[1]-dx/L*w]);
+  }
   return {type:"FeatureCollection",features:[
-    {type:"Feature",properties:{t:"tum"},geometry:{type:"LineString",coordinates:FAY}},
-    {type:"Feature",properties:{t:"secili"},geometry:{type:"LineString",coordinates:FAY.filter(p=>p[0]>=a-1e-9&&p[0]<=b+1e-9)}}]};
+    {type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[[...sol,...sag.reverse(),sol[0]]]}},
+  ]};
+}
+function fayYukselt(){
+  if(!harita.getSource("fay")) return;
+  harita.getSource("fay").setData(fayGJ());
+  const hedef = 2400;
+  if(!HAREKET){ harita.setPaintProperty("fay","fill-extrusion-height",hedef); return; }
+  const t0 = performance.now();
+  const adim = t => { const k = Math.min(1,(t-t0)/1100), e = 1-Math.pow(1-k,3); harita.setPaintProperty("fay","fill-extrusion-height", hedef*e); if(k<1) requestAnimationFrame(adim); };
+  harita.setPaintProperty("fay","fill-extrusion-height",0); requestAnimationFrame(adim);
+}
+const panelBosluk = () => TELEFON() ? {top:0,bottom:0,left:0,right:0} : {top:0,bottom:0,left:430,right:0};
+function kameraSenaryo(){
+  if(harita.getZoom() > 12.3) return;
+  const k = KAMERA[st.k];
+  harita.easeTo({center:k.center, zoom:TELEFON()?9.6:10.3, pitch:st.d3?55:0, bearing:st.d3?k.bearing:0, padding:panelBosluk(), duration:HAREKET?1800:0});
 }
 function sec(id, ucus){
   if(harita && st.secili!=null) harita.setFeatureState({source:"mahalle",id:st.secili},{secili:false});
@@ -401,84 +441,152 @@ function sec(id, ucus){
       const g = M.features[id].geometry; let x0=180,y0=90,x1=-180,y1=-90;
       const tara = c => typeof c[0]==="number" ? (x0=Math.min(x0,c[0]),x1=Math.max(x1,c[0]),y0=Math.min(y0,c[1]),y1=Math.max(y1,c[1])) : c.forEach(tara);
       tara(g.coordinates);
-      harita.fitBounds([[x0,y0],[x1,y1]],{padding:60,maxZoom:15,duration:900});
+      const cam = harita.cameraForBounds([[x0,y0],[x1,y1]],{padding:TELEFON()?40:{top:60,bottom:60,left:460,right:80}});
+      harita.flyTo({center:cam.center, zoom:Math.max(14.6, Math.min(cam.zoom+0.6, 16)), pitch:st.d3?62:0, bearing:harita.getBearing(), padding:panelBosluk(), duration:HAREKET?2200:0, essential:true});
     }
   }
   kartYaz();
-  if(id!=null && window.matchMedia("(max-width:820px)").matches) document.getElementById("kart").scrollIntoView({behavior:"smooth",block:"nearest"});
+  if(id!=null && TELEFON()) document.getElementById("kart").scrollIntoView({behavior:HAREKET?"smooth":"auto",block:"nearest"});
+}
+
+/* ---------- 3D binalar: ilçe ilçe, yakınlaşınca ---------- */
+const BINA = new Map();  // anahtar → {durum, son}
+const binaKatmanlari = () => [...BINA.keys()].filter(k=>harita.getLayer("b-"+k)).map(k=>"b-"+k);
+function binaCoz(js){
+  const fs = new Array(js.c.length);
+  for(let j=0;j<js.c.length;j++){
+    const d = js.c[j]; let x = js.x0, y = js.y0; const ring = [];
+    for(let q=0;q<d.length;q+=2){ x += d[q]; y += d[q+1]; ring.push([x/1e6, y/1e6]); }
+    ring.push(ring[0]);
+    const [h, has, iso, cut, tas] = js.p[j], p = {y:h, o:tas};
+    for(let s=0;s<9;s++){ p["h"+s] = iso ? iso[s] : 0; p["t"+s] = cut ? cut[s] : 0; p["d"+s] = Math.min(100, has[Math.floor(s/3)]*CARPAN[s%3]); }
+    fs[j] = {type:"Feature",properties:p,geometry:{type:"Polygon",coordinates:[ring]}};
+  }
+  return {type:"FeatureCollection",features:fs};
+}
+function binaYukle(){
+  if(!BI || !harita) return;
+  const z = harita.getZoom();
+  document.getElementById("ipucu-yakin").hidden = !(z >= 11.8 && z < 13.6);
+  if(z < 13.3) return;
+  const b = harita.getBounds(), v = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()];
+  const gorunen = BI.ilceler.filter(x => !(x.bbox[2]<v[0] || x.bbox[0]>v[2] || x.bbox[3]<v[1] || x.bbox[1]>v[3]));
+  const simdi = performance.now();
+  for(const x of gorunen){
+    const key = x.f.replace(".json","");
+    const kayit = BINA.get(key);
+    if(kayit){ kayit.son = simdi; continue; }
+    BINA.set(key, {durum:"yukleniyor", son:simdi});
+    durum(`${x.ilce} binaları yükleniyor`);
+    al("data/bina/"+x.f).then(js => {
+      const gj = binaCoz(js);
+      harita.addSource("b-"+key,{type:"geojson",data:gj,tolerance:0.2,buffer:16});
+      harita.addLayer({id:"b-"+key,type:"fill-extrusion",source:"b-"+key,minzoom:13,paint:{
+        "fill-extrusion-color": renk(binaDeger(), OLCU[st.o].esik),
+        "fill-extrusion-height": ["interpolate",["linear"],["zoom"],13,0,13.8,["get","y"]],
+        "fill-extrusion-base": 0, "fill-extrusion-opacity": 0.96, "fill-extrusion-vertical-gradient": true}}, "fay");
+      BINA.get(key).durum = "hazir"; durum("");
+      binaTemizle();
+    }).catch(e => { BINA.delete(key); durum(e.message); setTimeout(()=>durum(""),3000); });
+  }
+}
+function binaTemizle(){
+  const hazir = [...BINA.entries()].filter(([,v])=>v.durum==="hazir").sort((a,b)=>b[1].son-a[1].son);
+  for(const [key] of hazir.slice(4)){ harita.removeLayer("b-"+key); harita.removeSource("b-"+key); BINA.delete(key); }
 }
 
 function haritaKur(){
-  if(typeof maplibregl === "undefined"){ document.getElementById("durum").textContent = "Harita kütüphanesi yüklenemedi. Sayfayı yenileyin."; return; }
+  if(typeof maplibregl === "undefined"){ durum("Harita kütüphanesi yüklenemedi. Sayfayı yenileyin."); return; }
   harita = new maplibregl.Map({
-    container:"harita", attributionControl:false, dragRotate:false, pitchWithRotate:false, touchPitch:false,
-    bounds:[[28.55,40.78],[29.45,41.22]], fitBoundsOptions:{padding:20}, maxBounds:[[27.3,40.45],[30.4,41.75]],
-    style:{version:8, sources:{}, layers:[{id:"deniz",type:"background",paint:{"background-color":C.deniz}}]}
+    container:"harita", attributionControl:false, maxPitch:72, antialias:true,
+    center:[28.98,41.03], zoom:TELEFON()?8.6:9.3, pitch:0, bearing:0, maxBounds:[[27.3,40.35],[30.4,41.8]],
+    style:{version:8, sources:{}, light:{anchor:"viewport", color:"#ffffff", intensity:0.38, position:[1.25,215,32]},
+           layers:[{id:"deniz",type:"background",paint:{"background-color":C.deniz}}]}
   });
-  harita.touchZoomRotate.disableRotation();
+  harita.touchZoomRotate.enableRotation();
   document.getElementById("z-art").onclick = () => harita.zoomIn();
   document.getElementById("z-azal").onclick = () => harita.zoomOut();
+  document.getElementById("c-sol").onclick = () => harita.easeTo({bearing:harita.getBearing()-30,duration:500});
+  document.getElementById("c-sag").onclick = () => harita.easeTo({bearing:harita.getBearing()+30,duration:500});
+  document.getElementById("c-kuzey").onclick = () => harita.easeTo({bearing:0,duration:500});
+  document.getElementById("c-3d").onclick = e => { st.d3 = !st.d3; e.currentTarget.setAttribute("aria-pressed", st.d3); harita.easeTo({pitch:st.d3?55:0, duration:700}); };
+  harita.on("rotate", () => document.getElementById("pusula").style.transform = `rotate(${-harita.getBearing()}deg)`);
   harita.on("load", () => {
     Promise.all([al("data/ilceler.json"), al("data/mahalleler.json"), al("data/hastaneler.json"), al("data/toplanma.json")]).then(([il, mh, hs, tp]) => {
       M = mahalleDuzle(mh); H = hs; T = tp;
       harita.addSource("ilce",{type:"geojson",data:il});
       harita.addLayer({id:"kara",type:"fill",source:"ilce",paint:{"fill-color":C.beton}});
       harita.addSource("mahalle",{type:"geojson",data:M});
-      harita.addLayer({id:"mahalle",type:"fill",source:"mahalle",paint:{"fill-color":C.beton,"fill-opacity":["interpolate",["linear"],["zoom"],10,0.92,14,0.55]}});
-      harita.addLayer({id:"mahalle-cizgi",type:"line",source:"mahalle",paint:{"line-color":"#ffffff","line-opacity":["interpolate",["linear"],["zoom"],9,0.25,13,0.7],"line-width":["case",["boolean",["feature-state","secili"],false],0,0.6]}});
-      harita.addLayer({id:"ilce-cizgi",type:"line",source:"ilce",paint:{"line-color":C.murekkep,"line-opacity":0.55,"line-width":["interpolate",["linear"],["zoom"],9,0.6,13,1.4]}});
-      harita.addSource("kirilma",{type:"geojson",data:kirilmaGJ()});
-      harita.addLayer({id:"fay-tum",type:"line",source:"kirilma",filter:["==",["get","t"],"tum"],paint:{"line-color":C.fay,"line-opacity":0.35,"line-width":2,"line-dasharray":[2,2]}});
-      harita.addLayer({id:"fay-secili",type:"line",source:"kirilma",filter:["==",["get","t"],"secili"],layout:{"line-cap":"round"},paint:{"line-color":C.fay,"line-width":["interpolate",["linear"],["zoom"],8,3,12,6],"line-dasharray":[3,1.5]}});
-      harita.addLayer({id:"mahalle-secili",type:"line",source:"mahalle",paint:{"line-color":C.murekkep,"line-width":["case",["boolean",["feature-state","secili"],false],2.6,0]}});
+      harita.addLayer({id:"mahalle-zemin",type:"fill",source:"mahalle",paint:{"fill-color":C.beton}});
+      harita.addLayer({id:"mahalle-cizgi",type:"line",source:"mahalle",paint:{"line-color":"#ffffff","line-opacity":["interpolate",["linear"],["zoom"],9,0.35,14,0.8],"line-width":0.7}});
+      harita.addLayer({id:"ilce-cizgi",type:"line",source:"ilce",paint:{"line-color":C.murekkep,"line-opacity":0.5,"line-width":["interpolate",["linear"],["zoom"],9,0.6,13,1.4]}});
       const tf = {type:"FeatureCollection",features:T.x.map((x,j)=>{ const p={k:T.k[j],a:T.a[j],n:T.n[j],t:T.t[j]}; T.l.forEach((arr,s)=>p["l"+s]=arr[j]); return {type:"Feature",properties:p,geometry:{type:"Point",coordinates:[x,T.y[j]]}}; })};
       harita.addSource("toplanma",{type:"geojson",data:tf});
-      harita.addLayer({id:"toplanma",type:"circle",source:"toplanma",minzoom:11.5,paint:{"circle-radius":["interpolate",["linear"],["zoom"],11.5,["interpolate",["linear"],["sqrt",["get","k"]],10,1.6,200,5],15,["interpolate",["linear"],["sqrt",["get","k"]],10,4,200,12]],"circle-color":C.toplanma,"circle-stroke-color":"#ffffff","circle-stroke-width":1}});
-      const hf = {type:"FeatureCollection",features:H.x.map((x,j)=>({type:"Feature",properties:{n:H.n[j],t:H.t[j]},geometry:{type:"Point",coordinates:[x,H.y[j]]}}))};
+      harita.addLayer({id:"toplanma",type:"circle",source:"toplanma",minzoom:11.5,paint:{"circle-pitch-alignment":"map","circle-radius":["interpolate",["linear"],["zoom"],11.5,["interpolate",["linear"],["sqrt",["get","k"]],10,1.6,200,5],16,["interpolate",["linear"],["sqrt",["get","k"]],10,6,200,22]],"circle-color":C.toplanma,"circle-opacity":0.9,"circle-stroke-color":"#ffffff","circle-stroke-width":1}});
+      harita.addLayer({id:"mahalle-3d",type:"fill-extrusion",source:"mahalle",paint:{"fill-extrusion-color":C.maket,"fill-extrusion-height":0,"fill-extrusion-base":0,"fill-extrusion-opacity":["interpolate",["linear"],["zoom"],12.6,0.92,13.4,0],"fill-extrusion-vertical-gradient":true}});
+      harita.addLayer({id:"mahalle-secili",type:"line",source:"mahalle",paint:{"line-color":C.murekkep,"line-width":["case",["boolean",["feature-state","secili"],false],3,0]}});
+      const kare = (x,y,r) => [[x-r,y-r*0.76],[x+r,y-r*0.76],[x+r,y+r*0.76],[x-r,y+r*0.76],[x-r,y-r*0.76]];
+      const hf = {type:"FeatureCollection",features:H.x.map((x,j)=>({type:"Feature",properties:{n:H.n[j],t:H.t[j]},geometry:{type:"Polygon",coordinates:[kare(x,H.y[j],0.00022)]}}))};
       harita.addSource("hastane",{type:"geojson",data:hf});
-      harita.addLayer({id:"hastane",type:"circle",source:"hastane",paint:{"circle-radius":["interpolate",["linear"],["zoom"],9,2.5,14,6.5],"circle-color":C.hastane,"circle-stroke-color":"#ffffff","circle-stroke-width":["interpolate",["linear"],["zoom"],9,0.8,14,1.6]}});
+      harita.addSource("fay",{type:"geojson",data:fayGJ()});
+      harita.addLayer({id:"fay",type:"fill-extrusion",source:"fay",paint:{"fill-extrusion-color":C.fay,"fill-extrusion-height":0,"fill-extrusion-opacity":0.88}});
+      harita.addLayer({id:"hastane",type:"fill-extrusion",source:"hastane",paint:{"fill-extrusion-color":C.hastane,"fill-extrusion-height":["interpolate",["linear"],["zoom"],9,1100,12,320,14,70,16,48],"fill-extrusion-opacity":0.95}});
       haritaGuncelle(); listeYaz(); etkilesim();
+      // açılış: üstten eğik kent maketine iniş
+      const k = KAMERA[st.k];
+      harita.flyTo({center:k.center, zoom:TELEFON()?9.6:10.3, pitch:55, bearing:k.bearing, padding:panelBosluk(), duration:HAREKET?3600:0, essential:true});
+      setTimeout(fayYukselt, HAREKET?900:0);
+      durum("Yollar yükleniyor");
+      al("data/bina/index.json").then(x => { BI = x; binaYukle(); }).catch(()=>{});
       return al("data/yollar.json");
-    }).then(yd => {
-      Y = yd;
+    }).then(Y => {
       const fs = new Array(Y.c.length);
       for(let j=0;j<Y.c.length;j++){
         const c = Y.c[j], co = []; for(let q=0;q<c.length;q+=2) co.push([c[q],c[q+1]]);
-        const p = {k:Y.k[j]}; const v = Y.v[j]; for(let s=0;s<9;s++) p["v"+s]=v[s];
+        const p = {k:Y.k[j]}, v = Y.v[j]; for(let s=0;s<9;s++) p["v"+s]=v[s];
         fs[j] = {type:"Feature",properties:p,geometry:{type:"LineString",coordinates:co}};
       }
       harita.addSource("yol",{type:"geojson",data:{type:"FeatureCollection",features:fs},buffer:32,tolerance:0.45});
-      harita.addLayer({id:"yol",type:"line",source:"yol",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":C.sari,"line-width":["interpolate",["linear"],["zoom"],9,["+",0.35,["*",0.25,["get","k"]]],13,["+",1.3,["*",0.6,["get","k"]]],16,["+",3.5,["*",1.2,["get","k"]]]]}},"fay-tum");
-      haritaGuncelle();
-      document.getElementById("durum").hidden = true;
-    }).catch(e => { document.getElementById("durum").textContent = e.message + ". Sayfayı yenileyin."; });
+      harita.addLayer({id:"yol-isilti",type:"line",source:"yol",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":C.kizil,"line-opacity":0.45,"line-blur":["interpolate",["linear"],["zoom"],9,2,15,8],"line-width":["interpolate",["linear"],["zoom"],9,3,13,8,16,18]}},"mahalle-3d");
+      harita.addLayer({id:"yol",type:"line",source:"yol",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":C.sari,"line-width":["interpolate",["linear"],["zoom"],9,["+",0.35,["*",0.25,["get","k"]]],13,["+",1.3,["*",0.6,["get","k"]]],16,["+",3.5,["*",1.2,["get","k"]]]]}},"mahalle-3d");
+      haritaGuncelle(); durum("");
+    }).catch(e => durum(e.message + ". Sayfayı yenileyin."));
   });
+  harita.on("moveend", binaYukle);
 }
 function etkilesim(){
   const ip = document.getElementById("ipucu");
   harita.on("mousemove", e => {
-    const f = harita.queryRenderedFeatures(e.point,{layers:["hastane","toplanma","mahalle"]})[0];
+    const katman = ["hastane","toplanma", ...binaKatmanlari(), "mahalle-3d","mahalle-zemin"];
+    const f = harita.queryRenderedFeatures(e.point,{layers:katman.filter(l=>harita.getLayer(l))})[0];
     harita.getCanvas().parentElement.classList.toggle("isaret", !!f);
     if(!f){ ip.hidden = true; return; }
-    const p = f.properties, i = idx();
+    const p = f.properties, i = idx(), lid = f.layer.id;
     let h;
-    if(f.layer.id==="hastane") h = `<b>${p.n}</b>${p.t}`;
-    else if(f.layer.id==="toplanma"){ const l = p["l"+i], k = p.k; h = `<b>${p.n || "Toplanma alanı"}</b>${p.t}, ${fmt(p.a)} m²<br>Kapasite ${fmt(k)} kişi, gelen ${fmt(l)} kişi`; }
+    if(lid==="hastane") h = `<b>${p.n}</b>${p.t}`;
+    else if(lid==="toplanma") h = `<b>${p.n || "Toplanma alanı"}</b>${p.t}, ${fmt(p.a)} m²<br>Kapasite ${fmt(p.k)} kişi, gelen ${fmt(p["l"+i])} kişi`;
+    else if(lid.startsWith("b-")){
+      const tas = Math.floor(p.o / 2**i) % 2;
+      h = `<b>Bina, ${p.y} m</b>Ağır hasar olasılığı ${yuzde(p["d"+i])}<br>Hastaneden kopma ${yuzde(p["h"+i])}<br>Toplanma alanından kopma ${yuzde(p["t"+i])}${tas?"<br>En yakın toplanma alanı taşıyor":""}`;
+    }
     else h = `<b>${p.n}</b>${p.i}<br>${OLCU[st.o].ad}: ${yuzde(p[st.o+i] ?? 0)}`;
     ip.innerHTML = h; ip.style.left = e.point.x+"px"; ip.style.top = e.point.y+"px"; ip.hidden = false;
   });
   harita.on("mouseout", () => ip.hidden = true);
-  harita.on("click","mahalle", e => sec(e.features[0].id, false));
+  harita.on("click", e => {
+    const f = harita.queryRenderedFeatures(e.point,{layers:["mahalle-3d","mahalle-zemin"]})[0];
+    if(f) sec(f.id, false);
+  });
 }
 
 /* ---------- kontroller ---------- */
-document.getElementById("kaynak").addEventListener("change", e => { st.k = e.target.value; fayCiz(); guncelle(); });
+document.getElementById("kaynak").addEventListener("change", e => { st.k = e.target.value; fayCiz(); guncelle(); if(harita){ fayYukselt(); kameraSenaryo(); } });
 document.getElementById("siddet").addEventListener("change", e => { st.s = +e.target.value; guncelle(); });
 document.getElementById("olcu").addEventListener("change", e => { st.o = e.target.value; lejantYaz(); guncelle(); });
 document.getElementById("liste").addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if(b) sec(+b.dataset.id, true); });
 function guncelle(){ ozetYaz(); haritaGuncelle(); listeYaz(); kartYaz(); }
 
-if(window.matchMedia("(max-width:820px)").matches) document.getElementById("harita-lejant").open = false;
+if(TELEFON()) document.getElementById("harita-lejant").open = false;
 fayCiz(); lejantYaz();
 al("data/ozet.json").then(o => { OZ = o; ozetYaz(); }).catch(()=>{});
 haritaKur();
